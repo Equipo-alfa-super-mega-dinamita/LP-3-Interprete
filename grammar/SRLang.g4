@@ -29,12 +29,12 @@ sintácticas, esto puede eliminar a la larga bastantes reglas.
 
 */
 //PARSER RULES
-components: component*;
+components: component*| TK_SEPARATOR component*;
 
 component:
-	specificComponent     TK_SEPARATOR
-	|   combinedComponent TK_SEPARATOR	
-	|   separateBody      TK_SEPARATOR
+	specificComponent
+	|   combinedComponent
+	|   separateBody
 	;
 
 specificComponent:
@@ -1002,7 +1002,7 @@ TK_AUG_AND: '&:=' ;
 TK_AUG_CONCAT: '||:=' ;
 TK_AUG_RSHIFT: '>>:=' ;
 TK_AUG_LSHIFT: '<<:=' ;
-TK_SEPARATOR: ';';
+TK_SEPARATOR: ';'|'\n';
 
 
 
@@ -1052,7 +1052,7 @@ LINE_COMMENT
 
 fragment
 CMT_LITERAL: '#'+ | '/' '/'+;
-WHITESPACE  :  [ \t\r\n]+ -> skip
+WHITESPACE  :  [ \t\r]+ -> skip
     ;
 
 
