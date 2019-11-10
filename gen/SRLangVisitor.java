@@ -1,4 +1,4 @@
-// Generated from C:/Users/Nicolai Romero/Desktop/LP-3-Interprete/grammar\SRLang.g4 by ANTLR 4.7.2
+// Generated from /home/julian/LP-3-Interprete/grammar/SRLang.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -477,6 +477,12 @@ public interface SRLangVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStatement(SRLangParser.StatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SRLangParser#writeStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWriteStatement(SRLangParser.WriteStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SRLangParser#skipStatement}.
 	 * @param ctx the parse tree

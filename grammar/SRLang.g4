@@ -487,7 +487,12 @@ statement:
 	|   receiveStatement
 	|   pStatement
 	|   concurrentStatement
+	|   writeStatement
 	;
+
+writeStatement:
+    TK_WRITE TK_LPAREN expression TK_RPAREN
+    ;
 
 skipStatement:
 	    TK_SKIP
@@ -954,6 +959,7 @@ TK_UNION: 'union' ;
 TK_VAL: 'val' ;
 TK_VAR: 'var' ;
 TK_VM: 'vm' ;
+TK_WRITE: 'write';
 TK_XOR: 'xor' ;
 
 //Operators

@@ -1,4 +1,4 @@
-// Generated from C:/Users/Nicolai Romero/Desktop/LP-3-Interprete/grammar\SRLang.g4 by ANTLR 4.7.2
+// Generated from /home/julian/LP-3-Interprete/grammar/SRLang.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -556,6 +556,13 @@ public class SRLangBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitStatement(SRLangParser.StatementContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitWriteStatement(SRLangParser.WriteStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
