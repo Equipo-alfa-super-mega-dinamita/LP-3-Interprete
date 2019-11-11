@@ -29,7 +29,7 @@ sintácticas, esto puede eliminar a la larga bastantes reglas.
 
 */
 //PARSER RULES
-components: component*| TK_SEPARATOR component*;
+components: TK_SEPARATOR* (component TK_SEPARATOR+)* component TK_SEPARATOR*;
 
 component:
 	specificComponent
@@ -491,7 +491,7 @@ statement:
 	;
 
 writeStatement:
-    TK_WRITE TK_LPAREN expression TK_RPAREN
+    TK_WRITE parenList
     ;
 
 skipStatement:
@@ -773,14 +773,8 @@ parenList:
 
 parenItemList:
 	    /* epsilon (Empty production) */
-	|   expressionLP
+	|   expression (TK_COMMA expression)*
 	;
-
-expressionLP:
-	    expression
-	|   expressionLP TK_COMMA expression
-	;
-
 
 constructor:
 	    TK_LPAREN constrItemLP TK_RPAREN
@@ -959,7 +953,7 @@ TK_UNION: 'union' ;
 TK_VAL: 'val' ;
 TK_VAR: 'var' ;
 TK_VM: 'vm' ;
-TK_WRITE: 'write';
+TK_WRITE: 'write'|'writes';
 TK_XOR: 'xor' ;
 
 //Operators
@@ -1012,8 +1006,6 @@ TK_SEPARATOR: ';'|'\n';
 
 
 
-//Identificators
-TK_ID: [A-Za-z][A-Za-z0-9_]*;
 
 
 //Primitive literals
@@ -1050,6 +1042,8 @@ TK_SLIT: '"'  CHAR*? '"';
 TK_NLIT: 'noop' | 'null';
 TK_FLIT: 'stderr' | 'stdin' | 'stdout';
 TK_BOGUS : '<ERROR, THIS SHOULD NOT HAPPEN>'; //Este token es usado para evitar ambiguedad
+//Identificators
+TK_ID: [A-Za-z][A-Za-z0-9_]*;
 
 COMMENT
     :   '/*' .*? '*/' -> skip;

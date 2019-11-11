@@ -1277,16 +1277,6 @@ public interface SRLangListener extends ParseTreeListener {
 	 */
 	void exitParenItemList(SRLangParser.ParenItemListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SRLangParser#expressionLP}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpressionLP(SRLangParser.ExpressionLPContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SRLangParser#expressionLP}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpressionLP(SRLangParser.ExpressionLPContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SRLangParser#constructor}.
 	 * @param ctx the parse tree
 	 */

@@ -1539,18 +1539,6 @@ public class SRLangBaseListener implements SRLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpressionLP(SRLangParser.ExpressionLPContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpressionLP(SRLangParser.ExpressionLPContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterConstructor(SRLangParser.ConstructorContext ctx) { }
 	/**
 	 * {@inheritDoc}

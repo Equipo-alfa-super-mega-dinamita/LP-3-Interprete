@@ -1,7 +1,11 @@
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     HashMap<String, Object> table = new HashMap<>();
+
 
     @Override
     public T visitDeclaration(SRLangParser.DeclarationContext ctx) {
@@ -23,7 +27,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         }
         return ans;
     }
-    @SuppressWarnings("unchecked")
+
     @Override
     public T visitObjDeclaration(SRLangParser.ObjDeclarationContext ctx) {
         String actionType = ctx.varOrConst().getText();
@@ -54,7 +58,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T visitVarDef(SRLangParser.VarDefContext ctx) {
         //Format: idSubsLP varAtt
@@ -73,7 +76,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T visitVarAtt(SRLangParser.VarAttContext ctx) {
         Variable varAux = new Variable();
@@ -126,7 +128,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T visitBasicType(SRLangParser.BasicTypeContext ctx) {
         if (ctx.TK_BOOL() != null) {
@@ -143,7 +144,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T visitIdSubsLP(SRLangParser.IdSubsLPContext ctx) {
         if (ctx.idSubsLP() != null) {
@@ -154,7 +154,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T visitIdSubs(SRLangParser.IdSubsContext ctx) {
         if (ctx.subscripts() == null) {
@@ -170,22 +169,40 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     }
 
     @Override
-    public T visitWriteStatement(SRLangParser.WriteStatementContext ctx) {
-        String s = visitExpression(ctx.expression()).toString();
-        System.out.println(s);
+    public T visitWriteStatement(SRLangParser.WriteStatementContext ctx ){
+        List<T> args = new LinkedList<>();
+        String toPrint = "";
+        for(int i=0;i<ctx.parenList().parenItemList().expression().size();i++){
+            args.add(visitExpression(ctx.parenList().parenItemList().expression(i)));
+        }
+        if(ctx.TK_WRITE().getText().equals("write")){
+            for(T arg : args){
+                toPrint+=(" ")+arg.toString();
+            }
+            System.out.println(toPrint.trim());
+        }else{
+            for(T arg : args){
+                toPrint+=arg.toString();
+            }
+            System.out.print(toPrint);
+        }
         return super.visitWriteStatement(ctx);
     }
+
+
 
     @Override
     public T visitExpression(SRLangParser.ExpressionContext ctx) {
         if (ctx.literal() != null) {
             return visitLiteral(ctx.literal());
-        } else {
+        }else if(ctx.parenList()!=null) {
+            //Invocacion Funcion, evaluar
+            return (T) (Object) evaluarInvocacionFuncion(ctx);
+        }else{
             return null;
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T visitLiteral(SRLangParser.LiteralContext ctx) {
         if (ctx.TK_SLIT() != null) {
@@ -194,18 +211,18 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             return (T) (Boolean) Boolean.parseBoolean(ctx.TK_BLIT().getText());
         } else if (ctx.TK_RLIT() != null) {
             return (T) (Double) Double.parseDouble(ctx.TK_RLIT().getText());
-        } else if (ctx.TK_ILIT() != null) {
-            return (T) (Integer) Integer.parseInt(ctx.TK_ILIT().getText());
-        } else if (ctx.TK_CLIT() != null) {
+        }else if(ctx.TK_ILIT()!=null){
+            return (T) (Integer) Integer.parseInt(ctx.TK_ILIT().getText()); //NO CONSIDERA TODOS LOS TIPOS DE ILIT
+        }else if(ctx.TK_CLIT()!=null){
             //return (T) (Character) ctx.TK_CLIT().getText(); //Caracteres, probar
-            return (T) ctx.TK_SLIT().getText();
-        } else if (ctx.TK_NLIT() != null) {
+            return (T) (Character) ctx.TK_CLIT().getText().charAt(1);
+        }else if(ctx.TK_NLIT()!=null){
             //Null o Noop
             return null;
         } else if (ctx.TK_FLIT() != null) {
             //Flujos de datos, importante. Revisar.
-            return (T) ctx.TK_SLIT().getText();
-        } else {
+            return (T) ctx.TK_FLIT().getText();
+        }else{
             return null;
         }
     }
@@ -218,6 +235,45 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     }
     private void errorGenerator(int line, int col,String name){
         System.err.printf("<%d:%d> Error semantico, la variable con nombre: \"" + name + "\" ya fue declarada.\n", line, col);
+        System.exit(-1);
+    }
+    private T evaluarInvocacionFuncion(SRLangParser.ExpressionContext ctx) {
+        //Funcion es interna de SR?
+        String functionIden = ctx.expression(0).TK_ID().getText();
+        List<T> args = new LinkedList<>();
+        for(int i=0;i<ctx.parenList().parenItemList().expression().size();i++){
+            args.add(visitExpression(ctx.parenList().parenItemList().expression(i)));
+        }
+        switch (functionIden){
+            //Basic functions
+            case "max":
+                System.out.println("max");
+                double max=Double.MIN_VALUE;
+                //Comprobar tipos de los argumentos? integers o reals
+                for(T arg:args){
+                    System.out.println(arg.getClass());
+                    if(arg.getClass().equals(Character.class)){
+
+                    }
+                }
+                /*for(T arg : args){
+                    if((double)arg > max){
+                        max = (double)arg;
+                    }
+                }
+                return (T)(Double)max;*/
+                return null;
+                //break;
+            default:
+                System.out.println("Pvt");
+                break;
+        }
+        //Funcion declarada, buscar y llamar (?)
+
+        return null;
+    }
+    public void error(String err){
+        System.err.printf(err);
         System.exit(-1);
     }
 }

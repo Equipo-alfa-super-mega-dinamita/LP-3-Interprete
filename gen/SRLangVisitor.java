@@ -772,12 +772,6 @@ public interface SRLangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParenItemList(SRLangParser.ParenItemListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SRLangParser#expressionLP}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpressionLP(SRLangParser.ExpressionLPContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SRLangParser#constructor}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

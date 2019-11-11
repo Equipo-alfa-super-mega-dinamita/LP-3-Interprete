@@ -1,16 +1,3 @@
 resource d5()
-	write("before rep")
-	in rep(z) ->
-		write("got")
-	ni
-
-
-	proc worker(rep,n)
-		var v : int
-		v := 7777
-		write("worker before reply")
-		reply
-		write("worker after reply")
-		write("worker after send rep")
-	end
+	max(1,0.2,'c')
 end
