@@ -7,7 +7,7 @@ import java.util.List;
 public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     HashMap<String, Object> table = new HashMap<>();
 
-
+/*--------------------------------Declaration------------------------------------*/
     @Override
     public T visitDeclaration(SRLangParser.DeclarationContext ctx) {
         T ans = null;
@@ -95,7 +95,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             return (T) varAux;
         }
     }
-
+/*--------------------------type specification--------------------------*/
     @Override
     public T visitType(SRLangParser.TypeContext ctx) {
         if (ctx.subscripts() != null) {
@@ -146,7 +146,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         }
         return null;
     }
-
+/*------------------------------miscellaneous------------------------------*/
     @Override
     public T visitIdSubsLP(SRLangParser.IdSubsLPContext ctx) {
         if (ctx.idSubsLP() != null) {
@@ -163,7 +163,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         if (ctx.subscripts() == null) {
             String name =ctx.TK_ID().getText();
             if(nameIsInUse(name)){
-                errorGenerator(ctx.TK_ID().getSymbol().getLine(),ctx.TK_ID().getSymbol().getCharPositionInLine()+1,name);
+                AuxMethods.errorGenerator(ctx.TK_ID().getSymbol().getLine(),ctx.TK_ID().getSymbol().getCharPositionInLine()+1,name);
             }
             return (T) ctx.TK_ID().getText();
         } else {
@@ -204,7 +204,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     }
 
 
-
+/*----------------------------- expressionession -----------------------------*/
     @Override
     public T visitExpression(SRLangParser.ExpressionContext ctx) {
         if (ctx.literal() != null) {
@@ -241,6 +241,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             return null;
         }
     }
+    /*---------------------NASH----------------------*/
     private boolean nameIsInUse(String name){
         boolean ans = false;
         if(table.get(name)!=null){
@@ -248,10 +249,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         }
         return ans;
     }
-    private void errorGenerator(int line, int col,String name){
-        System.err.printf("<%d:%d> Error semantico, la variable con nombre: \"" + name + "\" ya fue declarada.\n", line, col);
-        System.exit(-1);
-    }
+
     private T evaluarInvocacionFuncion(SRLangParser.ExpressionContext ctx) {
         //Funcion es interna de SR?
         String functionIden = ctx.expression(0).TK_ID().getText();
@@ -268,7 +266,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
                 for(T arg:args){
                     System.out.println(arg.getClass());
                     if(!arg.getClass().equals(Integer.class) && !arg.getClass().equals(Double.class)){
-                        error("Argumentos de la función Max solo pueden ser enteros o reales. (");
+                        AuxMethods.error("Argumentos de la función Max solo pueden ser enteros o reales. (");
                     }
                 }
                 /*for(T arg : args){
@@ -287,8 +285,5 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
 
         return null;
     }
-    public void error(String err){
-        System.err.printf(err);
-        System.exit(-1);
-    }
+
 }
