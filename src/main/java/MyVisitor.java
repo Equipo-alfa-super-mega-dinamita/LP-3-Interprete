@@ -1,3 +1,5 @@
+import org.antlr.v4.runtime.Token;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -241,7 +243,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             }
             System.out.print(toPrint);
         }
-        return super.visitWriteStatement(ctx);
+        return null;
     }
 
 
@@ -250,10 +252,30 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     public T visitExpression(SRLangParser.ExpressionContext ctx) {
         if (ctx.literal() != null) {
             return visitLiteral(ctx.literal());
-        } else if (ctx.parenList() != null) {
-            //Invocacion Funcion, evaluar
-            return (T) (Object) evaluarInvocacionFuncion(ctx);
-        } else {
+        }else if(ctx.parenList()!=null) {
+            //Invocacion funcion, evaluar
+            return (T) evaluarInvocacionFuncion(ctx);
+
+        //SUFFIX EXPRESSION
+        }else if(ctx.TK_INCR()!=null) {
+            T arg = visitExpression(ctx.expression(0));
+            if(!AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class)){
+                Token token = ctx.TK_INCR().getSymbol();
+                AuxMethods.error("Operandos de incremento solo pueden ser enteros o reales.",token.getLine(),token.getCharPositionInLine()+1);
+            }
+            if(arg.getClass().equals(Integer.class)){
+                return (T) (Integer)(((Integer)arg)+1);
+            }else{
+                return (T) (Double)(((Double)arg)+1.0);
+            }
+        //BINARY EXPRESSION
+        }else if(ctx.TK_PLUS() != null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionSum(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_MINUS() != null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMinus(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_CONCAT() != null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionConcat(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else{
             return null;
         }
     }
@@ -269,8 +291,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             return (T) (Double) Double.parseDouble(ctx.TK_RLIT().getText());
         } else if (ctx.TK_ILIT() != null) {
             return (T) (Integer) Integer.parseInt(ctx.TK_ILIT().getText()); //NO CONSIDERA TODOS LOS TIPOS DE ILIT
-        } else if (ctx.TK_CLIT() != null) {
-            //return (T) (Character) ctx.TK_CLIT().getText(); //Caracteres, probar
+        }else if(ctx.TK_CLIT()!=null){
             return (T) (Character) ctx.TK_CLIT().getText().charAt(1);
         } else if (ctx.TK_NLIT() != null) {
             //Null o Noop
@@ -295,30 +316,37 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     private T evaluarInvocacionFuncion(SRLangParser.ExpressionContext ctx) {
         //Funcion es interna de SR?
         String functionIden = ctx.expression(0).TK_ID().getText();
+
+        /*//Para recorrer los argumentos e introducirlos en una lista
         List<T> args = new LinkedList<>();
-        for (int i = 0; i < ctx.parenList().parenItemList().expression().size(); i++) {
-            args.add(visitExpression(ctx.parenList().parenItemList().expression(i)));
-        }
-        switch (functionIden) {
+        for(SRLangParser.ExpressionContext expression : ctx.parenList().parenItemList().expression()){
+            args.add(visitExpression(expression));
+        }*/
+
+        switch (functionIden){
             //Basic functions
             case "max":
-                System.out.println("max");
-                double max = Double.MIN_VALUE;
-                //Comprobar tipos de los argumentos? integers o reals
-                for (T arg : args) {
-                    System.out.println(arg.getClass());
-                    if (!arg.getClass().equals(Integer.class) && !arg.getClass().equals(Double.class)) {
-                        AuxMethods.error("Argumentos de la función Max solo pueden ser enteros o reales. (");
+                double max=Double.MIN_VALUE;
+                //Recorrer los argumentos
+                for(SRLangParser.ExpressionContext expression : ctx.parenList().parenItemList().expression()){
+                    T arg = visitExpression(expression);
+                    //System.out.println(arg+": "+AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class));
+                    if(!AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class)){
+                        Token token = ctx.expression(0).TK_ID().getSymbol();
+                        AuxMethods.error("Argumentos de la función Max solo pueden ser enteros o reales.",token.getLine(),token.getCharPositionInLine()+1);
+                    }
+
+                    if(arg.getClass().equals(Integer.class)){
+                        if((Double.valueOf((Integer)arg))>max){
+                            max = Double.valueOf((Integer)arg);
+                        }
+                    }else{
+                        if((Double)arg>max){
+                            max = (Double)arg;
+                        }
                     }
                 }
-                /*for(T arg : args){
-                    if((double)arg > max){
-                        max = (double)arg;
-                    }
-                }
-                return (T)(Double)max;*/
-                return null;
-            //break;
+                return (T)(Double)max;
             default:
                 System.out.println("Pvt");
                 break;

@@ -12,7 +12,6 @@ public class App{
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         SRLangParser parser = new SRLangParser(tokens);
         ParseTree tree = parser.components();
-
         MyVisitor<Object> loader = new MyVisitor<Object>();
         loader.visit(tree);
     }
