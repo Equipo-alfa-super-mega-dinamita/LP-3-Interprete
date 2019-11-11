@@ -324,8 +324,7 @@ varOrConst:
 	;
 
 varDefLP:
-	    varDef
-	|   varDefLP TK_COMMA varDef
+	    varDef (TK_COMMA varDef)*
 	;
 
 varDef:
@@ -838,8 +837,7 @@ idLP:
 	;
 
 idSubsLP:
-	    idSubs				
-	|   idSubsLP TK_COMMA idSubs		
+	    idSubs (TK_COMMA idSubs)*
 	;
 
 idSubs:
@@ -848,8 +846,7 @@ idSubs:
 	;
 
 subscripts:
-	    bracketedList			
-	|   bracketedList subscripts		
+	    bracketedList+
 	;
 
 subscriptsOptional:
@@ -862,13 +859,11 @@ bracketedList:
 	;
 
 boundLP:
-	    bounds				
-	|   boundLP TK_COMMA bounds		
+	    bounds	(TK_COMMA bounds)*
 	;
 
 bounds:
-	    bound			        
-	|   bound TK_COLON bound		
+	    bound (TK_COLON bound)*
 	;
 
 bound:

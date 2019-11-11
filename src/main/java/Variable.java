@@ -2,11 +2,9 @@ public class Variable<T> {
     private String name;
     private T Value;
     private String type;
-
+    private AttributeMatrix att;
 
     private boolean isConst;
-    private boolean isArray;
-    private int ArraySize;
 
 
     public String getName() {
@@ -25,13 +23,6 @@ public class Variable<T> {
         Value = value;
     }
 
-    public boolean isArray() {
-        return isArray;
-    }
-
-    public void setArray(boolean array) {
-        isArray = array;
-    }
 
     public String getType() {
         return type;
@@ -49,12 +40,19 @@ public class Variable<T> {
         isConst = aConst;
     }
 
-    public int getArraySize() {
-        return ArraySize;
+    public AttributeMatrix getAtt() {
+        return att;
     }
 
-    public void setArraySize(int arraySize) {
-        ArraySize = arraySize;
+    public void createAtt(int dimensions) {
+        this.att = new AttributeMatrix(dimensions);
+    }
+    public  void setAttValue(int index, String value){
+        this.att.setExpressionValue(index,value);
+    }
+
+    public void setAtt(AttributeMatrix att) {
+        this.att = att;
     }
 
     @Override
@@ -63,9 +61,8 @@ public class Variable<T> {
                 "name='" + name + '\'' +
                 ", Value=" + Value +
                 ", type='" + type + '\'' +
+                ", Att=" + att +
                 ", isConst=" + isConst +
-                ", isArray=" + isArray +
-                ", ArraySize=" + ArraySize +
                 '}';
     }
 }

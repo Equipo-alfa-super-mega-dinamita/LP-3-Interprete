@@ -1,3 +1,3 @@
 resource d5()
-	var a : int
+	var a,b,c,d : int := 5
 end
