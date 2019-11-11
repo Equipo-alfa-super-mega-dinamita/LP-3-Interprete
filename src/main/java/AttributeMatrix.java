@@ -25,7 +25,6 @@ public class AttributeMatrix {
         this.expression[index] = value;
     }
 
-
     @Override
     public String toString() {
         return "AttributeMatrix{" +

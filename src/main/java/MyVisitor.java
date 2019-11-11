@@ -18,7 +18,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
 
         } else if (ctx.objDeclaration() != null) {
             ArrayList<T> objDeclarations = (ArrayList<T>) visitObjDeclaration(ctx.objDeclaration());
-            for (T variable: objDeclarations){
+            for (T variable : objDeclarations) {
                 Variable aux = (Variable) variable;
                 table.put(aux.getName(), aux);
                 table.put(aux.getName(), aux);
@@ -41,7 +41,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     public T visitObjDeclaration(SRLangParser.ObjDeclarationContext ctx) {
         String actionType = ctx.varOrConst().getText();
         boolean isConst;
-        ArrayList <T> myVars  = (ArrayList<T>) visitVarDefLP(ctx.varDefLP());
+        ArrayList<T> myVars = (ArrayList<T>) visitVarDefLP(ctx.varDefLP());
         if (actionType.equals("var")) {
             isConst = false;
         } else if (actionType.equals("const")) {
@@ -51,7 +51,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             System.exit(-2);
             return null;
         }
-        for(T myVar: myVars){
+        for (T myVar : myVars) {
             Variable aux = (Variable) myVar;
             aux.setConst(isConst);
         }
@@ -60,11 +60,11 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
 
     @Override
     public T visitVarDefLP(SRLangParser.VarDefLPContext ctx) {
-        ArrayList <T> args = new ArrayList();
+        ArrayList<T> args = new ArrayList();
         //varDef -> some Arrays of Variable
         for (int i = 0; i < ctx.varDef().size(); i++) {
             //get an Array
-            ArrayList <T> aux = (ArrayList<T>) visitVarDef(ctx.varDef(i));
+            ArrayList<T> aux = (ArrayList<T>) visitVarDef(ctx.varDef(i));
             //And add the variables to args to create a new array with the variables
             args.addAll(aux);
         }
@@ -84,14 +84,14 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             return (T) args;
         } else {
             //type and value
-            if(auxVar.getType()!=null){
+            if (auxVar.getType() != null) {
                 //type->it uses colon and it's for all variable
                 for (T arg : args) {
                     Variable aux = (Variable) arg;
                     aux.setType((auxVar.getType()));
                 }
             }
-            if(auxVar.getValue()!=null){
+            if (auxVar.getValue() != null) {
                 //Value->it uses assignation operator and it's for the last variable o no?
                 /* if it's for the last variable
                 Variable aux = (Variable) args.get(args.size()-1);
@@ -212,19 +212,56 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
 
     @Override
     public T visitSubscripts(SRLangParser.SubscriptsContext ctx) {
-        int value = 0;
-        //bracketedList
+        int value = ctx.bracketedList().size();//num []
         AttributeMatrix auxAtt = new AttributeMatrix(value);
+        //bracketedList
+        for (int i = 0; i < value; i++) {
+            //expressions in []
+            auxAtt.setExpressionValue(i, (String) visitBracketedList(ctx.bracketedList(i)));
+        }
         //values expressions
         return (T) auxAtt;
     }
 
-    /*--------------------------blocks and statements----------------------------------------------*/
-    @Override
-    public T visitBracketedList(SRLangParser.BracketedListContext ctx) {
-        return null;
+    @Override public T visitBracketedList(SRLangParser.BracketedListContext ctx){
+        return visitBoundLP(ctx.boundLP());
     }
 
+    @Override
+    public T visitBoundLP(SRLangParser.BoundLPContext ctx) {
+        //bounds list
+        String internalExpression = "";
+        internalExpression += visitBounds(ctx.bounds(0));
+        for (int i = 1; i < ctx.bounds().size(); i++) {
+            internalExpression += "," + visitBounds(ctx.bounds(i));
+        }
+        return (T) internalExpression;
+    }
+
+    @Override
+    public T visitBounds(SRLangParser.BoundsContext ctx) {
+        //bound list
+        String internalExpression = "";
+        internalExpression += visitBound(ctx.bound(0));
+        for (int i = 1; i < ctx.bound().size(); i++) {
+            internalExpression += ":" + visitBound(ctx.bound(i));
+        }
+        return (T) internalExpression;
+    }
+
+    @Override
+    public T visitBound(SRLangParser.BoundContext ctx) {
+        //expression or aster
+        if (ctx.expression() != null) {
+            //expression
+            return visitExpression(ctx.expression());
+        } else {
+            //TK_ASTER
+            return (T) ctx.TK_ASTER().getText();
+        }
+    }
+
+    /*--------------------------blocks and statements----------------------------------------------*/
     @Override
     public T visitWriteStatement(SRLangParser.WriteStatementContext ctx) {
         List<T> args = new LinkedList<>();
@@ -252,30 +289,30 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     public T visitExpression(SRLangParser.ExpressionContext ctx) {
         if (ctx.literal() != null) {
             return visitLiteral(ctx.literal());
-        }else if(ctx.parenList()!=null) {
+        } else if (ctx.parenList() != null) {
             //Invocacion funcion, evaluar
             return (T) evaluarInvocacionFuncion(ctx);
 
-        //SUFFIX EXPRESSION
-        }else if(ctx.TK_INCR()!=null) {
+            //SUFFIX EXPRESSION
+        } else if (ctx.TK_INCR() != null) {
             T arg = visitExpression(ctx.expression(0));
-            if(!AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class)){
+            if (!AuxMethods.valueIsOfTypes(arg, Integer.class, Double.class)) {
                 Token token = ctx.TK_INCR().getSymbol();
-                AuxMethods.error("Operandos de incremento solo pueden ser enteros o reales.",token.getLine(),token.getCharPositionInLine()+1);
+                AuxMethods.error("Operandos de incremento solo pueden ser enteros o reales.", token.getLine(), token.getCharPositionInLine() + 1);
             }
-            if(arg.getClass().equals(Integer.class)){
-                return (T) (Integer)(((Integer)arg)+1);
-            }else{
-                return (T) (Double)(((Double)arg)+1.0);
+            if (arg.getClass().equals(Integer.class)) {
+                return (T) (Integer) (((Integer) arg) + 1);
+            } else {
+                return (T) (Double) (((Double) arg) + 1.0);
             }
-        //BINARY EXPRESSION
-        }else if(ctx.TK_PLUS() != null){
-            return (T) AuxBinaryExpressionVisitors.BinaryExpressionSum(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
-        }else if(ctx.TK_MINUS() != null){
-            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMinus(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
-        }else if(ctx.TK_CONCAT() != null){
-            return (T) AuxBinaryExpressionVisitors.BinaryExpressionConcat(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
-        }else{
+            //BINARY EXPRESSION
+        } else if (ctx.TK_PLUS() != null) {
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionSum(ctx, visitExpression(ctx.expression(0)), visitExpression(ctx.expression(1)));
+        } else if (ctx.TK_MINUS() != null) {
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMinus(ctx, visitExpression(ctx.expression(0)), visitExpression(ctx.expression(1)));
+        } else if (ctx.TK_CONCAT() != null) {
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionConcat(ctx, visitExpression(ctx.expression(0)), visitExpression(ctx.expression(1)));
+        } else {
             return null;
         }
     }
@@ -291,7 +328,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             return (T) (Double) Double.parseDouble(ctx.TK_RLIT().getText());
         } else if (ctx.TK_ILIT() != null) {
             return (T) (Integer) Integer.parseInt(ctx.TK_ILIT().getText()); //NO CONSIDERA TODOS LOS TIPOS DE ILIT
-        }else if(ctx.TK_CLIT()!=null){
+        } else if (ctx.TK_CLIT() != null) {
             return (T) (Character) ctx.TK_CLIT().getText().charAt(1);
         } else if (ctx.TK_NLIT() != null) {
             //Null o Noop
@@ -323,30 +360,30 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             args.add(visitExpression(expression));
         }*/
 
-        switch (functionIden){
+        switch (functionIden) {
             //Basic functions
             case "max":
-                double max=Double.MIN_VALUE;
+                double max = Double.MIN_VALUE;
                 //Recorrer los argumentos
-                for(SRLangParser.ExpressionContext expression : ctx.parenList().parenItemList().expression()){
+                for (SRLangParser.ExpressionContext expression : ctx.parenList().parenItemList().expression()) {
                     T arg = visitExpression(expression);
                     //System.out.println(arg+": "+AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class));
-                    if(!AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class)){
+                    if (!AuxMethods.valueIsOfTypes(arg, Integer.class, Double.class)) {
                         Token token = ctx.expression(0).TK_ID().getSymbol();
-                        AuxMethods.error("Argumentos de la función Max solo pueden ser enteros o reales.",token.getLine(),token.getCharPositionInLine()+1);
+                        AuxMethods.error("Argumentos de la función Max solo pueden ser enteros o reales.", token.getLine(), token.getCharPositionInLine() + 1);
                     }
 
-                    if(arg.getClass().equals(Integer.class)){
-                        if((Double.valueOf((Integer)arg))>max){
-                            max = Double.valueOf((Integer)arg);
+                    if (arg.getClass().equals(Integer.class)) {
+                        if ((Double.valueOf((Integer) arg)) > max) {
+                            max = Double.valueOf((Integer) arg);
                         }
-                    }else{
-                        if((Double)arg>max){
-                            max = (Double)arg;
+                    } else {
+                        if ((Double) arg > max) {
+                            max = (Double) arg;
                         }
                     }
                 }
-                return (T)(Double)max;
+                return (T) (Double) max;
             default:
                 System.out.println("Pvt");
                 break;
