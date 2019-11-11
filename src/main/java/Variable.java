@@ -1,8 +1,13 @@
-public class Variable <T>{
+public class Variable<T> {
     private String name;
     private T Value;
     private String type;
-    private Boolean isConst;
+
+
+    private boolean isConst;
+    private boolean isArray;
+    private boolean ArraySize;
+
 
     public String getName() {
         return name;
@@ -20,6 +25,14 @@ public class Variable <T>{
         Value = value;
     }
 
+    public boolean isArray() {
+        return isArray;
+    }
+
+    public void setArray(boolean array) {
+        isArray = array;
+    }
+
     public String getType() {
         return type;
     }
@@ -34,6 +47,14 @@ public class Variable <T>{
 
     public void setConst(boolean aConst) {
         isConst = aConst;
+    }
+
+    public boolean isArraySize() {
+        return ArraySize;
+    }
+
+    public void setArraySize(boolean arraySize) {
+        ArraySize = arraySize;
     }
 
     @Override

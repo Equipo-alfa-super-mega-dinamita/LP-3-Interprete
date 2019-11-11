@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,7 +99,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitType(SRLangParser.TypeContext ctx) {
         if (ctx.subscripts() != null) {
-            //No idea
+            //No idea subscripts
 
         } else if (ctx.unsubType() != null) {
             return visitUnsubType(ctx.unsubType());
@@ -149,7 +150,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitIdSubsLP(SRLangParser.IdSubsLPContext ctx) {
         if (ctx.idSubsLP() != null) {
-            System.out.print("");//temp
+            //Array List aux ?
+            visitIdSubsLP(ctx.idSubsLP());
         } else if (ctx.idSubs() != null) {
             return visitIdSubs(ctx.idSubs());
         }
@@ -169,7 +171,17 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         }
         return null;
     }
+    @Override
+    public T visitSubscripts(SRLangParser.SubscriptsContext ctx){
+        //bracketedList
+        if(ctx.subscripts()!=null){
 
+        }
+        return null;
+    }
+    @Override public T visitBracketedList(SRLangParser.BracketedListContext ctx){
+        return null;
+    }
     @Override
     public T visitWriteStatement(SRLangParser.WriteStatementContext ctx ){
         List<T> args = new LinkedList<>();
