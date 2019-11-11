@@ -6,7 +6,7 @@ public class Variable<T> {
 
     private boolean isConst;
     private boolean isArray;
-    private boolean ArraySize;
+    private int ArraySize;
 
 
     public String getName() {
@@ -49,11 +49,11 @@ public class Variable<T> {
         isConst = aConst;
     }
 
-    public boolean isArraySize() {
+    public int getArraySize() {
         return ArraySize;
     }
 
-    public void setArraySize(boolean arraySize) {
+    public void setArraySize(int arraySize) {
         ArraySize = arraySize;
     }
 
@@ -64,6 +64,8 @@ public class Variable<T> {
                 ", Value=" + Value +
                 ", type='" + type + '\'' +
                 ", isConst=" + isConst +
+                ", isArray=" + isArray +
+                ", ArraySize=" + ArraySize +
                 '}';
     }
 }

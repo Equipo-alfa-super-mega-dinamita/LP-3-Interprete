@@ -1,3 +1,3 @@
 resource d5()
-	max("hola","mundo")
+	var a : int
 end

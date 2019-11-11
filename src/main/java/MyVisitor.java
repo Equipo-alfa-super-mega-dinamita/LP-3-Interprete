@@ -163,7 +163,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         if (ctx.subscripts() == null) {
             String name =ctx.TK_ID().getText();
             if(nameIsInUse(name)){
-                AuxMethods.errorGenerator(ctx.TK_ID().getSymbol().getLine(),ctx.TK_ID().getSymbol().getCharPositionInLine()+1,name);
+                AuxMethods.errorGenerator(ctx.TK_ID().getSymbol().getLine(),
+                        ctx.TK_ID().getSymbol().getCharPositionInLine()+1,name);
             }
             return (T) ctx.TK_ID().getText();
         } else {
