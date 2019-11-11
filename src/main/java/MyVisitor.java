@@ -15,6 +15,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         } else if (ctx.objDeclaration() != null) {
             Variable myVar = (Variable) visitObjDeclaration(ctx.objDeclaration());
             table.put(myVar.getName(),myVar);
+            System.out.println(myVar);
         } else if (ctx.optypeDeclaration() != null) {
 
         } else if (ctx.semDeclaration() != null) {
@@ -108,7 +109,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitUnsubType(SRLangParser.UnsubTypeContext ctx) {
         if (ctx.basicType() != null) {
-
+            //CHAR BOOL FILE REAL INT
+            return visitBasicType(ctx.basicType());
         } else if (ctx.stringDef() != null) {
             //CHAR BOOL FILE REAL INT
             return visitBasicType(ctx.basicType());
@@ -206,7 +208,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitLiteral(SRLangParser.LiteralContext ctx) {
         if (ctx.TK_SLIT() != null) {
-            return (T) ctx.TK_SLIT().getText();
+            String str = ctx.TK_SLIT().getText();
+            return (T) str.substring(1,str.length()-1);
         } else if (ctx.TK_BLIT() != null) {
             return (T) (Boolean) Boolean.parseBoolean(ctx.TK_BLIT().getText());
         } else if (ctx.TK_RLIT() != null) {
@@ -252,8 +255,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
                 //Comprobar tipos de los argumentos? integers o reals
                 for(T arg:args){
                     System.out.println(arg.getClass());
-                    if(arg.getClass().equals(Character.class)){
-
+                    if(!arg.getClass().equals(Integer.class) && !arg.getClass().equals(Double.class)){
+                        error("Argumentos de la función Max solo pueden ser enteros o reales. (");
                     }
                 }
                 /*for(T arg : args){

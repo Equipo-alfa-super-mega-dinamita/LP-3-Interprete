@@ -35,4 +35,14 @@ public class Variable <T>{
     public void setConst(boolean aConst) {
         isConst = aConst;
     }
+
+    @Override
+    public String toString() {
+        return "Variable{" +
+                "name='" + name + '\'' +
+                ", Value=" + Value +
+                ", type='" + type + '\'' +
+                ", isConst=" + isConst +
+                '}';
+    }
 }
