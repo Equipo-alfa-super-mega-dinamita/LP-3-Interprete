@@ -362,7 +362,11 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitOpOrExternal(SRLangParser.OpOrExternalContext ctx) {
         //TK_OP | TK_EXTERNAL // external maybe it's not necessary
-        return null;
+        if(ctx.TK_OP()!=null){
+            return (T) ctx.TK_OP().getText();
+        }else{
+            return  (T) ctx.TK_EXTERNAL().getText();
+        }
     }
 
     @Override

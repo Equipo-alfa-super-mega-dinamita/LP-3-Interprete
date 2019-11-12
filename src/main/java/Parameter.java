@@ -1,9 +1,7 @@
-import java.util.Arrays;
-
-public class Method {
+public class Parameter {
     private String name;
     private String type;
-    private Parameter [] parameters;
+    private AttributeMatrix att;//String expression ->null
 
     public String getName() {
         return name;
@@ -21,24 +19,20 @@ public class Method {
         this.type = type;
     }
 
-    public Parameter[] getAttributes() {
-        return parameters;
+    public AttributeMatrix getAtt() {
+        return att;
     }
 
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Parameter[] parameters) {
-        this.parameters = parameters;
+    public void setAtt(AttributeMatrix att) {
+        this.att = att;
     }
 
     @Override
     public String toString() {
-        return "Method{" +
+        return "Parameter{" +
                 "name='" + name + '\'' +
                 ", type='" + type + '\'' +
-                ", parameters=" + Arrays.toString(parameters) +
+                ", att=" + att +
                 '}';
     }
 }
