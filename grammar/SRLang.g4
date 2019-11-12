@@ -150,8 +150,7 @@ opOrExternal:
 	;
 
 operDefLP:
-	    operDef
-	|   operDefLP TK_COMMA operDef
+	    operDef (TK_COMMA operDef)*
 	;
 
 operDef:

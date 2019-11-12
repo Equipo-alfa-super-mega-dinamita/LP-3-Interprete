@@ -223,7 +223,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         return (T) auxAtt;
     }
 
-    @Override public T visitBracketedList(SRLangParser.BracketedListContext ctx){
+    @Override
+    public T visitBracketedList(SRLangParser.BracketedListContext ctx) {
         return visitBoundLP(ctx.boundLP());
     }
 
@@ -258,6 +259,16 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         } else {
             //TK_ASTER
             return (T) ctx.TK_ASTER().getText();
+        }
+    }
+
+    @Override
+    public T visitQualifiedID(SRLangParser.QualifiedIDContext ctx) {
+        if (ctx.TK_PERIOD() != null) {
+            String s = ctx.TK_ID(0).getText() + ctx.TK_PERIOD().getText() + ctx.TK_ID(1);
+            return (T) s;
+        } else {
+            return (T) ctx.TK_ID(0).getText();
         }
     }
 
@@ -341,7 +352,139 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         }
     }
 
-    /*---------------------NASH----------------------*/
+    /*----------------------------top-level body statementents-----------------------------*/
+    @Override
+    public T visitOpDeclaration(SRLangParser.OpDeclarationContext ctx) {
+        //opDeclaration: opOrExternal operDefLP
+        return null;
+    }
+
+    @Override
+    public T visitOpOrExternal(SRLangParser.OpOrExternalContext ctx) {
+        //TK_OP | TK_EXTERNAL // external maybe it's not necessary
+        return null;
+    }
+
+    @Override
+    public T visitOperDefLP(SRLangParser.OperDefLPContext ctx) {
+        //operDef --> , list
+        return null;
+    }
+
+    @Override
+    public T visitOperDef(SRLangParser.OperDefContext ctx) {
+        //idSubsLP ->
+        //opPrototype | colonOpt qualifiedID
+        return null;
+    }
+
+    @Override
+    public T visitColonOpt(SRLangParser.ColonOptContext ctx) {
+        if (ctx.TK_COLON() != null) {
+            return (T) ctx.TK_COLON().getText();
+        } else {
+            /* epsilon (Empty production) */
+            return null;
+        }
+    }
+
+    /*----------------------------------optype-----------------------------------------------*/
+    @Override
+    public T visitOpPrototype(SRLangParser.OpPrototypeContext ctx) {
+        //prototype opRestrictionOpt
+        return null;
+    }
+
+    @Override
+    public T visitOpRestrictionOpt(SRLangParser.OpRestrictionOptContext ctx) {
+        //TK_LBRACE opRestriction TK_RBRACE
+        return null;
+    }
+
+    @Override
+    public T visitOpRestriction(SRLangParser.OpRestrictionContext ctx) {
+        if (ctx.TK_CALL() != null) {
+            if (ctx.TK_SEND() != null) {
+                String s = ctx.TK_CALL().getText() + ctx.TK_COMMA().getText() + ctx.TK_SEND().getText();
+                return (T) s;
+            } else {
+                return (T) ctx.TK_CALL().getText();
+            }
+        } else {
+            //Send
+            if (ctx.TK_CALL() != null) {
+                String s = ctx.TK_SEND().getText() + ctx.TK_COMMA().getText() + ctx.TK_CALL().getText();
+                return (T) s;
+            } else {
+                return (T) ctx.TK_SEND().getText();
+            }
+        }
+    }
+
+    /*--------------------------------------parameters---------------------------------------*/
+    @Override
+    public T visitPrototype(SRLangParser.PrototypeContext ctx) {
+        //parameters returnSpecificOptional
+        return null;
+    }
+
+    @Override
+    public T visitParameters(SRLangParser.ParametersContext ctx) {
+        //TK_LPAREN paramSpecificList TK_RPAREN
+        return null;
+    }
+
+    @Override
+    public T visitParamSpecificList(SRLangParser.ParamSpecificListContext ctx) {
+        //¿ | paramSpecificLP
+        return null;
+    }
+
+    @Override
+    public T visitParamSpecificLP(SRLangParser.ParamSpecificLPContext ctx) {
+        //paramSpecific-> PREGUNTAR
+        //TK_SEPARATOR
+        //TK_SEPARATOR paramSpecificLP
+        return null;
+    }
+
+    @Override
+    public T visitParamSpecific(SRLangParser.ParamSpecificContext ctx) {
+        //paramKindOptional->
+        //type|idSubsLP TK_COLON type
+        return null;
+    }
+
+    @Override
+    public T visitParamKindOptional(SRLangParser.ParamKindOptionalContext ctx) {
+        if (ctx.TK_REF() != null) {
+            return (T) ctx.TK_REF().getText();
+        } else if (ctx.TK_RES() != null) {
+            return (T) ctx.TK_RES().getText();
+        } else if (ctx.TK_VAL() != null) {
+            return (T) ctx.TK_VAL().getText();
+        } else if (ctx.TK_VAR() != null) {
+            return (T) ctx.TK_VAR().getText();
+        } else {
+            ///* epsilon (Empty production) */
+            return null;
+        }
+    }
+
+    @Override
+    public T visitReturnSpecificOptional(SRLangParser.ReturnSpecificOptionalContext ctx) {
+        //returnSpecificNull| TK_RETURNS->
+        //type|idSubs TK_COLON type|TK_ID TK_BOGUS
+        return null;
+    }
+
+    @Override
+    public T visitReturnSpecificNull(SRLangParser.ReturnSpecificNullContext ctx) {
+        ///* epsilon (Empty production) */ :)
+        return null;
+    }
+
+    /*------------------------------------NASH---------------------------------------*/
     private boolean nameIsInUse(String name) {
         boolean ans = false;
         if (table.get(name) != null) {
