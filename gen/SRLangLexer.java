@@ -1,4 +1,4 @@
-// Generated from /home/julian/LP-3-Interprete/grammar/SRLang.g4 by ANTLR 4.7.2
+// Generated from C:/Users/EDDER/Documents/Lenguajes de programacion/LP-3-Interprete/grammar\SRLang.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
