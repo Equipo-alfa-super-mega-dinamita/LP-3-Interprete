@@ -298,6 +298,56 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         return null;
     }
 
+    @Override
+    public T visitStatement(SRLangParser.StatementContext ctx) {
+        if(ctx.skipStatement()!=null){
+            AuxMethods.error("skipStatement "+"No esta disponible");
+        }else if(ctx.stopStatement()!=null){
+            AuxMethods.error("stopStatement "+"No esta disponible");
+        }else if (ctx.exitStatement()!=null){
+            AuxMethods.error("exitStatement "+"No esta disponible");
+        }else if (ctx.nextStatement()!=null){
+            AuxMethods.error("nextStatement "+"No esta disponible");
+        }else if (ctx.returnStatement()!=null){
+            AuxMethods.error("returnStatement "+"No esta disponible");
+        }else if (ctx.replyStatement()!=null){
+            AuxMethods.error("replyStatement "+"No esta disponible");
+        }else if (ctx.forwardStatement()!=null){
+            AuxMethods.error("forwardStatement "+"No esta disponible");
+        }else if (ctx.sendStatement()!=null){
+            AuxMethods.error("sendStatement "+"No esta disponible");
+        }else if (ctx.explicitCall()!=null){
+            AuxMethods.error("explicitCall "+"No esta disponible");
+        }else if (ctx.destroyStatement()!=null){
+            AuxMethods.error("destroyStatement "+"No esta disponible");
+        }else if (ctx.beginEnd()!=null){
+            AuxMethods.error("beginEnd "+"No esta disponible");
+        }else if (ctx.ifStatement()!=null){
+            AuxMethods.error("ifStatement "+"No esta disponible");
+        }else if (ctx.doStatement()!=null){
+            AuxMethods.error("doStatement "+"No esta disponible");
+        }else if (ctx.forAllStatement()!=null){
+            AuxMethods.error("forAllStatement "+"No esta disponible");
+        }else if(ctx.vStatement()!=null){
+            AuxMethods.error("vStatement "+"No esta disponible");
+        }else if (ctx.inputStatement()!=null){
+            AuxMethods.error("inputStatement "+"No esta disponible");
+        }else if (ctx.receiveStatement()!=null){
+            AuxMethods.error("receiveStatement "+"No esta disponible");
+        }else if (ctx.pStatement()!=null){
+            AuxMethods.error("pStatement "+"No esta disponible");
+        }else if (ctx.concurrentStatement()!=null){
+            AuxMethods.error("concurrentStatement "+"No esta disponible");
+        }else if (ctx.writeStatement()!=null){
+            AuxMethods.error("writeStatement "+"No esta disponible");
+        }
+        return  null;
+    }
+
+    @Override
+    public T visitIfStatement(SRLangParser.IfStatementContext ctx) {
+        return super.visitIfStatement(ctx);
+    }
 
     /*----------------------------- expressionession -----------------------------*/
     @Override
