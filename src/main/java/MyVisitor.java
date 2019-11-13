@@ -21,7 +21,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             for (T variable : objDeclarations) {
                 Variable aux = (Variable) variable;
                 table.put(aux.getName(), aux);
-                table.put(aux.getName(), aux);
                 System.out.println(aux);
             }
         } else if (ctx.optypeDeclaration() != null) {
@@ -29,7 +28,12 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
         } else if (ctx.semDeclaration() != null) {
 
         } else if (ctx.opDeclaration() != null) {
-
+            ArrayList<T> opDeclaration = (ArrayList<T>) visitOpDeclaration(ctx.opDeclaration());
+            for (T method : opDeclaration) {
+                Method aux = (Method) method;
+                table.put(aux.getName(), aux);
+                System.out.println(aux);
+            }
         } else {
             System.err.println("unexpected Error: visitDeclaration");
             System.exit(-2);
@@ -73,7 +77,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
 
     @Override
     public T visitVarDef(SRLangParser.VarDefContext ctx) {
-        ArrayList<T> args = new ArrayList<>();
+        ArrayList<T> args;
         //VarDef: idSubsLP varAtt
         //idSubsLP -> Variables with name
         args = (ArrayList<T>) visitIdSubsLP(ctx.idSubsLP());
@@ -131,7 +135,7 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     public T visitType(SRLangParser.TypeContext ctx) {
         if (ctx.subscripts() != null) {
             //No idea subscripts
-
+            AuxMethods.error("Subscribs no definidos en este punto");
         } else if (ctx.unsubType() != null) {
             return visitUnsubType(ctx.unsubType());
         }
@@ -144,8 +148,8 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             //CHAR BOOL FILE REAL INT
             return visitBasicType(ctx.basicType());
         } else if (ctx.stringDef() != null) {
-            //CHAR BOOL FILE REAL INT
-            return visitBasicType(ctx.basicType());
+            //String
+            return (T) ctx.stringDef().TK_STRING().getText();
         } else if (ctx.enumDef() != null) {
 
         } else if (ctx.pointerDef() != null) {
@@ -356,30 +360,60 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitOpDeclaration(SRLangParser.OpDeclarationContext ctx) {
         //opDeclaration: opOrExternal operDefLP
-        return null;
+        visitOpOrExternal(ctx.opOrExternal());
+        return visitOperDefLP(ctx.operDefLP());
     }
 
     @Override
     public T visitOpOrExternal(SRLangParser.OpOrExternalContext ctx) {
         //TK_OP | TK_EXTERNAL // external maybe it's not necessary
-        if(ctx.TK_OP()!=null){
+        if (ctx.TK_OP() != null) {
             return (T) ctx.TK_OP().getText();
-        }else{
-            return  (T) ctx.TK_EXTERNAL().getText();
+        } else {
+            AuxMethods.error("External no esta definido");
+            return (T) ctx.TK_EXTERNAL().getText();
         }
     }
 
     @Override
     public T visitOperDefLP(SRLangParser.OperDefLPContext ctx) {
         //operDef --> , list
-        return null;
+        ArrayList<T> args = new ArrayList<>();
+        for (int i = 0; i < ctx.operDef().size(); i++) {
+            //get an Array
+            ArrayList<T> aux = (ArrayList<T>)visitOperDef(ctx.operDef(i));
+            //And add the variables to args to create a new array with the variables
+            args.addAll(aux);
+        }
+        return (T) args;
     }
 
     @Override
     public T visitOperDef(SRLangParser.OperDefContext ctx) {
-        //idSubsLP ->
+        //idSubsLP (Variable list name)->
         //opPrototype | colonOpt qualifiedID
-        return null;
+        //names
+        ArrayList<Variable> args = (ArrayList<Variable>) visitIdSubsLP(ctx.idSubsLP());
+        ArrayList<Method> mArgs = new ArrayList<>();
+        for (Variable arg : args) {
+            Method mAux = new Method();
+            mAux.setName(arg.getName());
+            mArgs.add(mAux);
+        }
+        if (ctx.opPrototype() != null) {
+            //Parameters and return or type |call|send => skip
+            Method mAux = (Method) visitOpPrototype(ctx.opPrototype());
+            for (Method mArg: mArgs){
+                mArg.setType(mAux.getType());
+                mArg.setVarToReturn(mAux.getVarToReturn());
+                mArg.setParameters(mAux.getParameters());
+            }
+        } else {
+            AuxMethods.error("colonOpt qualifiedID aun no está definida");
+        }
+
+
+        return (T) mArgs;
     }
 
     @Override
@@ -396,12 +430,13 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     @Override
     public T visitOpPrototype(SRLangParser.OpPrototypeContext ctx) {
         //prototype opRestrictionOpt
-        return null;
+        return visitPrototype(ctx.prototype());
     }
 
     @Override
     public T visitOpRestrictionOpt(SRLangParser.OpRestrictionOptContext ctx) {
-        //TK_LBRACE opRestriction TK_RBRACE
+        //TK_LBRACE opRestriction TK_RBRACE //skip
+        AuxMethods.error("opRestrictionOpt Aun no definida");
         return null;
     }
 
@@ -428,35 +463,94 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     /*--------------------------------------parameters---------------------------------------*/
     @Override
     public T visitPrototype(SRLangParser.PrototypeContext ctx) {
+        Method auxMethod = new Method();
         //parameters returnSpecificOptional
-        return null;
+        //parameters
+        if (ctx.parameters().paramSpecificList() != null) {
+            ArrayList<Variable> args = (ArrayList<Variable>) visitParameters(ctx.parameters());
+            auxMethod.setParameters(args);
+        }
+        //returnSpecificOptional //return;
+        Variable aux = (Variable) visitReturnSpecificOptional(ctx.returnSpecificOptional());
+        if (aux != null) {
+            auxMethod.setType(aux.getType());
+            if (aux.getName() != null) {
+                auxMethod.setVarToReturn(aux);
+            }
+        }
+        return (T) auxMethod;
     }
 
     @Override
     public T visitParameters(SRLangParser.ParametersContext ctx) {
         //TK_LPAREN paramSpecificList TK_RPAREN
-        return null;
+        if (ctx.paramSpecificList() != null) {
+            return visitParamSpecificList(ctx.paramSpecificList());
+        } else {
+            return null;
+        }
+
     }
 
     @Override
     public T visitParamSpecificList(SRLangParser.ParamSpecificListContext ctx) {
         //¿ | paramSpecificLP
-        return null;
+        if (ctx.paramSpecificLP() != null) {
+            return visitParamSpecificLP(ctx.paramSpecificLP());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public T visitParamSpecificLP(SRLangParser.ParamSpecificLPContext ctx) {
-        //paramSpecific-> PREGUNTAR
-        //TK_SEPARATOR
-        //TK_SEPARATOR paramSpecificLP
-        return null;
+        //paramSpecific (TK_SEPARATOR paramSpecific)* TK_SEPARATOR?
+        ArrayList<T> args = new ArrayList<>();
+        for (int i = 0; i < ctx.paramSpecific().size(); i++) {
+            //get an Array
+            ArrayList<T> aux = (ArrayList<T>) visitParamSpecific(ctx.paramSpecific(i));
+            //And add the variables to args to create a new array with the variables
+            args.addAll(aux);
+        }
+        return (T) args;
     }
 
     @Override
     public T visitParamSpecific(SRLangParser.ParamSpecificContext ctx) {
         //paramKindOptional->
         //type|idSubsLP TK_COLON type
-        return null;
+        if (visitParamKindOptional(ctx.paramKindOptional()) != null) {
+            String word = (String) visitParamKindOptional(ctx.paramKindOptional());
+            if (word.equals("val")) {
+                AuxMethods.errorFunNotDefine(word, ctx.paramKindOptional().TK_VAL().getSymbol().getLine(),
+                        ctx.paramKindOptional().TK_REF().getSymbol().getCharPositionInLine() + 1);
+            } else if (word.equals("ref")) {
+                AuxMethods.errorFunNotDefine(word, ctx.paramKindOptional().TK_REF().getSymbol().getLine(),
+                        ctx.paramKindOptional().TK_REF().getSymbol().getCharPositionInLine() + 1);
+            } else if (word.equals("res")) {
+                AuxMethods.errorFunNotDefine(word, ctx.paramKindOptional().TK_RES().getSymbol().getLine(),
+                        ctx.paramKindOptional().TK_REF().getSymbol().getCharPositionInLine() + 1);
+            } else if (word.equals("var")) {
+                AuxMethods.errorFunNotDefine(word, ctx.paramKindOptional().TK_VAR().getSymbol().getLine(),
+                        ctx.paramKindOptional().TK_REF().getSymbol().getCharPositionInLine() + 1);
+            }
+            return null;
+        } else {
+            if (ctx.idSubsLP() != null) {
+                //name list
+                ArrayList<T> args = (ArrayList<T>) visitIdSubsLP(ctx.idSubsLP());
+                //type
+                String type = (String) visitType(ctx.type());
+                for (T arg : args) {
+                    Variable aux = (Variable) arg;
+                    aux.setType(type);
+                }
+                return (T) args; //variables with name and type
+            } else {
+                AuxMethods.error("Necesita identificador");
+                return null;
+            }
+        }
     }
 
     @Override
@@ -479,14 +573,20 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     public T visitReturnSpecificOptional(SRLangParser.ReturnSpecificOptionalContext ctx) {
         //returnSpecificNull| TK_RETURNS->
         //type|idSubs TK_COLON type|TK_ID TK_BOGUS
+        if (ctx.returnSpecificNull() != null) {
+            return null;
+        } else {
+            Variable auxVar = new Variable();
+            auxVar.setType((String) visitType(ctx.type()));
+            if (ctx.idSubs() != null) {
+                Variable aux = (Variable) visitIdSubs(ctx.idSubs());
+                auxVar.setName(aux.getName());
+                auxVar.setAtt(aux.getAtt());
+            }
+        }
         return null;
     }
 
-    @Override
-    public T visitReturnSpecificNull(SRLangParser.ReturnSpecificNullContext ctx) {
-        ///* epsilon (Empty production) */ :)
-        return null;
-    }
 
     /*------------------------------------NASH---------------------------------------*/
     private boolean nameIsInUse(String name) {

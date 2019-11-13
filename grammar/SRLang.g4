@@ -246,13 +246,15 @@ paramSpecificList:
 	    /* epsilon (Empty production) */
 	|   paramSpecificLP
 	;
-
+/*
 paramSpecificLP:
 	    paramSpecific
 	|   paramSpecific TK_SEPARATOR
 	|   paramSpecific TK_SEPARATOR paramSpecificLP
+	;*/
+paramSpecificLP:
+	    paramSpecific (TK_SEPARATOR paramSpecificLP)* TK_SEPARATOR?
 	;
-
 paramSpecific:
 	    paramKindOptional type
 	|   paramKindOptional idSubsLP TK_COLON type

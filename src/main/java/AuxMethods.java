@@ -12,7 +12,10 @@ public class AuxMethods {
         System.err.printf(err+" En linea: "+lin+", columna: "+col);
         System.exit(-1);
     }
-
+    public static void errorFunNotDefine(String name,int lin,int col){
+        System.err.printf(name+" En linea: "+lin+", columna: "+col+"No fue implementada");
+        System.exit(-1);
+    }
     public static boolean valueIsOfTypes(Object value, Class... classes){
         boolean isOfTypes = false;
         for(Class c : classes){

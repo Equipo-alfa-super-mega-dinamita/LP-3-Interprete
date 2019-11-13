@@ -1,9 +1,11 @@
-import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Method {
     private String name;
     private String type;
-    private Parameter [] parameters;
+    private Variable varToReturn;
+    private ArrayList<Variable> parameters;
+    private SRLangParser.BlockContext ctx;
 
     public String getName() {
         return name;
@@ -21,24 +23,33 @@ public class Method {
         this.type = type;
     }
 
-    public Parameter[] getAttributes() {
+    public ArrayList<Variable> getParameters() {
         return parameters;
     }
 
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Parameter[] parameters) {
+    public void setParameters(ArrayList<Variable> parameters) {
         this.parameters = parameters;
     }
 
+    public Variable getVarToReturn() {
+        return varToReturn;
+    }
+
+    public void setVarToReturn(Variable varToReturn) {
+        this.varToReturn = varToReturn;
+    }
+    public void setCtx(SRLangParser.BlockContext ctx) {
+        this.ctx = ctx;
+    }
     @Override
     public String toString() {
         return "Method{" +
                 "name='" + name + '\'' +
                 ", type='" + type + '\'' +
-                ", parameters=" + Arrays.toString(parameters) +
+                ", varToReturn='" + varToReturn + '\'' +
+                ", parameters=" + parameters +
                 '}';
     }
+
+
 }
