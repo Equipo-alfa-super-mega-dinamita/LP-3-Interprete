@@ -253,8 +253,9 @@ paramSpecificLP:
 	|   paramSpecific TK_SEPARATOR paramSpecificLP
 	;*/
 paramSpecificLP:
-	    paramSpecific (TK_SEPARATOR paramSpecificLP)* TK_SEPARATOR?
+	    paramSpecific (TK_SEPARATOR paramSpecific)* TK_SEPARATOR?
 	;
+
 paramSpecific:
 	    paramKindOptional type
 	|   paramKindOptional idSubsLP TK_COLON type
@@ -692,7 +693,7 @@ expression:
 	|   expression TK_LBRACKET boundLP TK_RBRACKET
 
 	//|   binaryExpression
-    	|   expression TK_EXPON	expression
+    	|   <assoc=right>expression TK_EXPON	expression
     	|   expression TK_ASTER	expression
     	|   expression TK_DIV		expression
     	|   expression TK_MOD		expression

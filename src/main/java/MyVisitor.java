@@ -320,14 +320,78 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
             } else {
                 return (T) (Double) (((Double) arg) + 1.0);
             }
-            //BINARY EXPRESSION
-        } else if (ctx.TK_PLUS() != null) {
-            return (T) AuxBinaryExpressionVisitors.BinaryExpressionSum(ctx, visitExpression(ctx.expression(0)), visitExpression(ctx.expression(1)));
-        } else if (ctx.TK_MINUS() != null) {
-            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMinus(ctx, visitExpression(ctx.expression(0)), visitExpression(ctx.expression(1)));
-        } else if (ctx.TK_CONCAT() != null) {
-            return (T) AuxBinaryExpressionVisitors.BinaryExpressionConcat(ctx, visitExpression(ctx.expression(0)), visitExpression(ctx.expression(1)));
-        } else {
+        //BINARY EXPRESSION
+
+        //Agregación
+        }else if(ctx.TK_PLUS() != null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionSum(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_MINUS() != null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMinus(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_CONCAT() != null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionConcat(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_EXPON()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionExpon(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        //Exponenciación
+        }else if(ctx.TK_ASTER()!= null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMult(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        //Multiplicacion y asociados
+        }else if(ctx.TK_DIV()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionDiv(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_MOD()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionMod(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_REMDR()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionRemdr(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        //BitShift
+        }else if(ctx.TK_RSHIFT()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionRShift(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_LSHIFT()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionLShift(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        //Relational Operators
+        }else if(ctx.TK_EQ()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionEqual(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_NE()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionNotEqual(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_GT()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionGT(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_GE()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionGE(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_LT()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionLT(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_LE()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionLE(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        //Logic operators
+        }else if(ctx.TK_AND()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionAnd(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_OR()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionOr(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        }else if(ctx.TK_XOR()!=null){
+            return (T) AuxBinaryExpressionVisitors.BinaryExpressionXor(ctx,visitExpression(ctx.expression(0)),visitExpression(ctx.expression(1)));
+        //ASIGNACIÓN
+        }else if(ctx.TK_ASSIGN()!=null){
+            String ident = ctx.expression(0).TK_ID().getText();
+            //Revisar si está declarada
+            Variable var= (Variable) table.get(ident);
+            if(var == null){
+                Token tk = ctx.TK_ASSIGN().getSymbol();
+                AuxMethods.error("Variable no declarada.",tk.getLine(),tk.getCharPositionInLine()-2);
+            }
+            //Revisar si el tipo coincide
+            Class type=null;
+            try{
+                type=Class.forName("java.lang."+AuxMethods.convertToJavaType(var.getType()));
+            }catch(Exception e){
+                Token tk = ctx.TK_ASSIGN().getSymbol();
+                AuxMethods.error("Tipo de variable no soportado.",tk.getLine(),tk.getCharPositionInLine()-2);
+            }
+            Object value = visitExpression(ctx.expression(1));
+            if(value.getClass().equals(type)){
+                var.setValue(value);
+            }else{
+                Token tk = ctx.TK_ASSIGN().getSymbol();
+                AuxMethods.error("Imposible asignar, tipos no coinciden."+value.getClass()+" no puede asignarse a variable de tipo "+type+".",tk.getLine(),tk.getCharPositionInLine()-2);
+            }
+            return null;
+        }else{
             return null;
         }
     }
@@ -600,7 +664,6 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     private T evaluarInvocacionFuncion(SRLangParser.ExpressionContext ctx) {
         //Funcion es interna de SR?
         String functionIden = ctx.expression(0).TK_ID().getText();
-
         /*//Para recorrer los argumentos e introducirlos en una lista
         List<T> args = new LinkedList<>();
         for(SRLangParser.ExpressionContext expression : ctx.parenList().parenItemList().expression()){
@@ -631,6 +694,82 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
                     }
                 }
                 return (T) (Double) max;
+            case "min":
+                double min = Double.MAX_VALUE;
+                //Recorrer los argumentos
+                for (SRLangParser.ExpressionContext expression : ctx.parenList().parenItemList().expression()) {
+                    T arg = visitExpression(expression);
+                    //System.out.println(arg+": "+AuxMethods.valueIsOfTypes(arg,Integer.class,Double.class));
+                    if (!AuxMethods.valueIsOfTypes(arg, Integer.class, Double.class)) {
+                        Token token = ctx.expression(0).TK_ID().getSymbol();
+                        AuxMethods.error("Argumentos de la función Min solo pueden ser enteros o reales.", token.getLine(), token.getCharPositionInLine() + 1);
+                    }
+
+                    if (arg.getClass().equals(Integer.class)) {
+                        if ((Double.valueOf((Integer) arg)) < min) {
+                            min = Double.valueOf((Integer) arg);
+                        }
+                    } else {
+                        if ((Double) arg < min) {
+                            min = (Double) arg;
+                        }
+                    }
+                }
+                return (T) (Double) min;
+            case "length":
+                T arg;
+                if(ctx.parenList().parenItemList().expression().size()!=1){
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Función length solo puede tener un argumento", token.getLine(), token.getCharPositionInLine() + 1);
+                }
+                return (T)AuxMathFunctions.length(ctx, visitExpression(ctx.parenList().parenItemList().expression(0)));
+            case "sqrt":
+                if(ctx.parenList().parenItemList().expression().size()!=1){
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Función sqrt solo puede tener un argumento", token.getLine(), token.getCharPositionInLine() + 1);
+                }
+                //No vale la pena abstraer el trozo de código
+                return (T)AuxMathFunctions.sqrt(ctx, visitExpression(ctx.parenList().parenItemList().expression(0)));
+            case "floor":
+                if(ctx.parenList().parenItemList().expression().size()!=1){
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Función floor solo puede tener un argumento", token.getLine(), token.getCharPositionInLine() + 1);
+                }
+                arg = visitExpression(ctx.parenList().parenItemList().expression(0));
+
+                if (!AuxMethods.valueIsOfTypes(arg, Double.class, Integer.class)) {
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Argumento de la función floor solo puede ser entero o real.", token.getLine(), token.getCharPositionInLine() + 1);
+                }else{
+                    return (T) (Double)Math.floor(Double.parseDouble(arg.toString()));
+                }
+            case "ceil":
+                if(ctx.parenList().parenItemList().expression().size()!=1){
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Función ceil solo puede tener un argumento", token.getLine(), token.getCharPositionInLine() + 1);
+                }
+                arg = visitExpression(ctx.parenList().parenItemList().expression(0));
+
+                if (!AuxMethods.valueIsOfTypes(arg, Double.class, Integer.class)) {
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Argumento de la función ceil solo puede ser entero o real.", token.getLine(), token.getCharPositionInLine() + 1);
+                }else{
+                    return (T) (Double)Math.ceil(Double.parseDouble(arg.toString()));
+                }
+            case "round":
+                if(ctx.parenList().parenItemList().expression().size()!=1){
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Función round solo puede tener un argumento", token.getLine(), token.getCharPositionInLine() + 1);
+                }
+                arg = visitExpression(ctx.parenList().parenItemList().expression(0));
+
+                if (!AuxMethods.valueIsOfTypes(arg, Double.class, Integer.class)) {
+                    Token token = ctx.expression(0).TK_ID().getSymbol();
+                    AuxMethods.error("Argumento de la función round solo puede ser entero o real.", token.getLine(), token.getCharPositionInLine() + 1);
+                }else{
+                    return (T) (Integer)Math.round(Float.parseFloat(arg.toString()));
+                }
+                return null;
             default:
                 System.out.println("Pvt");
                 break;

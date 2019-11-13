@@ -26,4 +26,13 @@ public class AuxMethods {
         return false;
     }
 
+    public static String convertToJavaType(String srType){
+        switch(srType){
+            case "int":
+                return "Integer";
+            default:
+                return null;
+        }
+    }
+
 }
