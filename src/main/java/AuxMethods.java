@@ -30,6 +30,8 @@ public class AuxMethods {
         switch(srType){
             case "int":
                 return "Integer";
+            case "real":
+                return "Double";
             default:
                 return null;
         }

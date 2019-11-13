@@ -302,7 +302,25 @@ public class MyVisitor<T> extends SRLangBaseVisitor<T> {
     /*----------------------------- expressionession -----------------------------*/
     @Override
     public T visitExpression(SRLangParser.ExpressionContext ctx) {
-        if (ctx.literal() != null) {
+
+        if(ctx.TK_ID()!=null){
+            //Revisar si está definido
+            String ident = ctx.TK_ID().getText();
+            Object value = table.get(ident);
+
+            if(value==null){
+                Token token = ctx.TK_ID().getSymbol();
+                AuxMethods.error("Identificador no definido.", token.getLine(), token.getCharPositionInLine()-2);
+            }
+
+            if(value.getClass().equals(Variable.class)){
+                return (T)((Variable)value).getValue();
+            }else{
+                System.out.println("Identificador no es una variable. Kha");
+                return null;
+            }
+
+        }else if (ctx.literal() != null) {
             return visitLiteral(ctx.literal());
         } else if (ctx.parenList() != null) {
             //Invocacion funcion, evaluar
